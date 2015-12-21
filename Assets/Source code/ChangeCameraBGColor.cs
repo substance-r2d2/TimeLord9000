@@ -11,7 +11,7 @@ public class ChangeCameraBGColor : MonoBehaviour {
 	void Start ()
     {
         initColor = Camera.main.backgroundColor;
-        Messenger.AddListener(EVENTID.EVENT_REWIND_TIME, OnEventRewind);
+        Messenger.AddListener<MANIPULATION_TYPE>(EVENTID.EVENT_REWIND_TIME, OnEventRewind);
         b_rewind = false;
 	}
 	
@@ -23,7 +23,7 @@ public class ChangeCameraBGColor : MonoBehaviour {
             Camera.main.backgroundColor = Color.Lerp(Camera.main.backgroundColor, initColor, 2f * Time.deltaTime);
 	}
 
-    void OnEventRewind()
+    void OnEventRewind(MANIPULATION_TYPE type)
     {
         b_rewind = !b_rewind;
     }

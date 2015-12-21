@@ -13,6 +13,7 @@ public class PlayerController : MonoBehaviour
     bool b_flipped;
     bool b_rewind;
     Transform bulletSpawnPos;
+    MANIPULATION_TYPE currentTimeManipulation;
 
 	void Start ()
     {
@@ -21,12 +22,12 @@ public class PlayerController : MonoBehaviour
         b_flipped = false;
         b_rewind = false;
         bulletSpawnPos = transform.FindChild("ShootingPos");
-        Messenger.AddListener(EVENTID.EVENT_REWIND_TIME, OnEventRewind);
+        Messenger.AddListener<MANIPULATION_TYPE>(EVENTID.EVENT_REWIND_TIME, OnEventRewind);
 	}
 	
 	void Update ()
     {
-        if (!b_rewind)
+        if (currentTimeManipulation != MANIPULATION_TYPE.REWIND)
         {
             if (Input.GetKey(KeyCode.A))
             {
@@ -64,14 +65,23 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        if(Input.GetKeyDown(KeyCode.LeftShift))
+        if(Input.GetKeyDown(KeyCode.LeftShift) && (currentTimeManipulation == MANIPULATION_TYPE.NONE || currentTimeManipulation == MANIPULATION_TYPE.REWIND))
         {
-            Messenger.Broadcast(EVENTID.EVENT_REWIND_TIME);
+            Messenger.Broadcast<MANIPULATION_TYPE>(EVENTID.EVENT_REWIND_TIME, MANIPULATION_TYPE.REWIND);
+            currentTimeManipulation = (currentTimeManipulation == MANIPULATION_TYPE.NONE) ? MANIPULATION_TYPE.REWIND : MANIPULATION_TYPE.NONE;
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftAlt) && (currentTimeManipulation == MANIPULATION_TYPE.NONE || currentTimeManipulation == MANIPULATION_TYPE.PAUSE))
+        {
+            Messenger.Broadcast<MANIPULATION_TYPE>(EVENTID.EVENT_REWIND_TIME, MANIPULATION_TYPE.PAUSE);
+            currentTimeManipulation = (currentTimeManipulation == MANIPULATION_TYPE.NONE) ? MANIPULATION_TYPE.PAUSE : MANIPULATION_TYPE.NONE;
         }
     }
 
-    void OnEventRewind()
+    void OnEventRewind(MANIPULATION_TYPE type)
     {
+        if(type == MANIPULATION_TYPE.NONE)
+            currentTimeManipulation = currentTimeManipulation == MANIPULATION_TYPE.REWIND ? MANIPULATION_TYPE.NONE : MANIPULATION_TYPE.REWIND;
         b_rewind = !b_rewind;
     }
 }
